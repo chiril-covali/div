@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Calculator Taxe & Dividende</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.8-3.42z'/%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .radio-custom:checked + div {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .radio-custom:checked + div .radio-dot {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+        @media (max-width: 640px) {
+            input[type="number"] { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-3 md:p-8 text-slate-800">
+
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Calculator Impozite & Dividende</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 items-start">
+            
+            <!-- PANEL STÂNGA: INPUTURI -->
+            <div class="lg:col-span-5 bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6Z"/></svg>
+                    Configurare Calcul
+                </h2>
+
+                <!-- Mod Calcul -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-3">Ce sumă vrei să pornești?</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="calcMode" value="brut" class="peer sr-only radio-custom" checked onchange="updateUI()">
+                            <div class="rounded-xl border border-slate-200 p-3 hover:bg-slate-50 transition-all flex items-center gap-2 md:gap-3 h-full">
+                                <div class="w-4 h-4 rounded-full border border-slate-300 radio-dot flex-shrink-0"></div>
+                                <span class="text-xs md:text-sm font-medium leading-tight">Venit Brut (Facturat)</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="calcMode" value="net" class="peer sr-only radio-custom" onchange="updateUI()">
+                            <div class="rounded-xl border border-slate-200 p-3 hover:bg-slate-50 transition-all flex items-center gap-2 md:gap-3 h-full">
+                                <div class="w-4 h-4 rounded-full border border-slate-300 radio-dot flex-shrink-0"></div>
+                                <span class="text-xs md:text-sm font-medium leading-tight">Dividend Net (În mână)</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Suma Principală -->
+                <div class="mb-6">
+                    <label id="mainAmountLabel" for="mainAmount" class="block text-sm font-medium text-slate-700 mb-2">Total Venit Brut (MDL)</label>
+                    <div class="relative">
+                        <input type="number" id="mainAmount" value="29000" min="0" step="100" class="block w-full pl-4 pr-16 py-3 text-lg font-semibold border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" oninput="calculate()">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <span class="text-slate-400 font-medium">MDL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câmp secundar în funcție de mod -->
+                <div class="mb-8" id="secondaryAmountBox">
+                    <label id="secondaryAmountLabel" for="secondaryAmount" class="block text-sm font-medium text-slate-700 mb-2">Cât vrei să scoți efectiv (Net)?</label>
+                    <div class="relative">
+                        <input type="number" id="secondaryAmount" value="25000" min="0" step="100" class="block w-full pl-4 pr-16 py-3 text-lg font-semibold border border-blue-100 bg-blue-50/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" oninput="calculate()">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <span class="text-slate-400 font-medium">MDL</span>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-[10px] md:text-xs text-slate-500" id="secondaryHint">Implicit: Se extrage tot ce rămâne după taxe și cheltuieli.</p>
+                </div>
+
+                <hr class="border-slate-100 mb-6">
+
+                <!-- Cheltuieli -->
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                            Cheltuieli Lunare (Firme externe)
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-2 cursor-pointer flex-grow">
+                                    <input type="checkbox" id="useFeeAccounting" checked onchange="calculate()" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                                    <span class="text-xs font-medium text-slate-600">Contabilitate</span>
+                                </label>
+                                <div class="relative w-28">
+                                    <input type="number" id="feeAccounting" value="500" class="block w-full pl-2 pr-8 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none transition-all disabled:opacity-30" oninput="calculate()">
+                                    <span class="absolute right-2 top-1.5 text-[10px] text-slate-400">MDL</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-2 cursor-pointer flex-grow">
+                                    <input type="checkbox" id="useFeeBank" checked onchange="calculate()" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                                    <span class="text-xs font-medium text-slate-600">Taxe Bancare</span>
+                                </label>
+                                <div class="relative w-28">
+                                    <input type="number" id="feeBank" value="100" class="block w-full pl-2 pr-8 py-1.5 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 outline-none transition-all disabled:opacity-30" oninput="calculate()">
+                                    <span class="absolute right-2 top-1.5 text-[10px] text-slate-400">MDL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PANEL DREAPTA: REZULTATE -->
+            <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                
+                <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Raport Evoluție Bani
+                    </h2>
+                </div>
+
+                <div class="p-5 md:p-6 flex-grow flex flex-col">
+                    <div class="space-y-4 mb-6">
+                        
+                        <!-- Flux Principal -->
+                        <div class="flex justify-between items-end border-b border-slate-100 pb-3">
+                            <div>
+                                <p class="text-xs md:text-sm font-medium text-slate-500">Venit Brut Încasat (Factură)</p>
+                            </div>
+                            <p class="text-base md:text-lg font-bold text-slate-900" id="resVenitBrut">0.00 MDL</p>
+                        </div>
+
+                        <!-- Taxa 4% -->
+                        <div class="flex justify-between items-center py-1">
+                            <div>
+                                <p class="text-xs md:text-sm font-medium text-slate-600">Impozit Venit (4%)</p>
+                            </div>
+                            <p class="text-sm md:text-base font-medium text-red-600" id="resImpOp">- 0.00 MDL</p>
+                        </div>
+
+                        <!-- Cheltuieli -->
+                        <div class="flex justify-between items-center py-1">
+                            <div>
+                                <p class="text-xs md:text-sm font-medium text-slate-600">Cheltuieli (Contabilitate + Bancă)</p>
+                            </div>
+                            <p class="text-sm md:text-base font-medium text-slate-500" id="resCheltuieli">- 0.00 MDL</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 my-2">
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs font-semibold text-slate-700 uppercase tracking-tight">Disponibil Dividend (Brut)</p>
+                                <p class="text-base font-bold text-slate-800" id="resBrutDiv">0.00 MDL</p>
+                            </div>
+                        </div>
+
+                        <!-- Taxa 6% -->
+                        <div class="flex justify-between items-center py-1">
+                            <div>
+                                <p class="text-xs md:text-sm font-medium text-slate-600">Impozit Dividende (6%)</p>
+                                <p id="hintTax6" class="text-[10px] text-slate-400"></p>
+                            </div>
+                            <p class="text-sm md:text-base font-medium text-red-600" id="resImpDiv">- 0.00 MDL</p>
+                        </div>
+
+                        <div id="warningBox" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs md:text-sm flex gap-2 items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 flex-shrink-0 text-amber-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <span id="warningMsg">Suma extrasă depășește disponibilul!</span>
+                        </div>
+                    </div>
+
+                    <!-- TOTALURI -->
+                    <div class="mt-auto">
+                        <div id="resultCards" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                            <div class="bg-green-600 text-white rounded-2xl p-4 shadow-md shadow-green-100">
+                                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 opacity-80">Dividend Net (În mână)</p>
+                                <p class="text-2xl font-bold" id="resNetDiv">0.00</p>
+                            </div>
+                            <div id="dynamicCard" class="bg-blue-600 text-white rounded-2xl p-4 shadow-md shadow-blue-100">
+                                <p id="dynamicCardLabel" class="text-[10px] font-bold uppercase tracking-wider mb-1 opacity-80">Rămas în Bancă (Firmă)</p>
+                                <p class="text-2xl font-bold" id="resDynamicValue">0.00</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 rounded-xl p-3 border border-red-100 flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] font-bold text-red-800 uppercase tracking-wider">De plată la Stat (Total)</p>
+                                <p class="text-xs text-red-600">4% Venit + 6% Dividende</p>
+                            </div>
+                            <p class="text-xl font-bold text-red-600" id="resTotalTaxe">0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const formatMoney = (amount) => {
+            return new Intl.NumberFormat('ro-MD', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount) + ' MDL';
+        };
+
+        function updateUI() {
+            const mode = document.querySelector('input[name="calcMode"]:checked').value;
+            const mainLabel = document.getElementById('mainAmountLabel');
+            const secLabel = document.getElementById('secondaryAmountLabel');
+            const secHint = document.getElementById('secondaryHint');
+            const dynamicCardLabel = document.getElementById('dynamicCardLabel');
+            const dynamicCard = document.getElementById('dynamicCard');
+
+            if(mode === 'brut') {
+                mainLabel.innerText = "Total Venit Brut (Factură)";
+                secLabel.innerText = "Cât vrei să scoți acum (Net)?";
+                secHint.innerText = "Dacă lași gol, se extrage tot disponibilul.";
+                dynamicCardLabel.innerText = "Rămas în Bancă (Firmă)";
+                dynamicCard.classList.remove('bg-orange-600');
+                dynamicCard.classList.add('bg-blue-600');
+            } else {
+                mainLabel.innerText = "Dividend Net (Cât vrei în mână)";
+                secLabel.innerText = "Cât să rămână în Bancă (Rezerve)?";
+                secHint.innerText = "Suma care rămâne în firmă după toate plățile.";
+                dynamicCardLabel.innerText = "Suma de Facturat (Brut)";
+                dynamicCard.classList.remove('bg-blue-600');
+                dynamicCard.classList.add('bg-orange-600');
+            }
+            calculate();
+        }
+
+        function calculate() {
+            const mode = document.querySelector('input[name="calcMode"]:checked').value;
+            const mainAmount = parseFloat(document.getElementById('mainAmount').value) || 0;
+            const secAmount = parseFloat(document.getElementById('secondaryAmount').value) || 0;
+            
+            const useFeeAcc = document.getElementById('useFeeAccounting').checked;
+            const useFeeBank = document.getElementById('useFeeBank').checked;
+            const feeAccInput = document.getElementById('feeAccounting');
+            const feeBankInput = document.getElementById('feeBank');
+            
+            feeAccInput.disabled = !useFeeAcc;
+            feeBankInput.disabled = !useFeeBank;
+
+            const feeAcc = useFeeAcc ? (parseFloat(feeAccInput.value) || 0) : 0;
+            const feeBank = useFeeBank ? (parseFloat(feeBankInput.value) || 0) : 0;
+            const cheltuieli = feeAcc + feeBank;
+
+            let venitBrut = 0;
+            let impOp = 0;
+            let brutDivDisponibil = 0;
+            let netDivExtras = 0;
+            let impDiv = 0;
+            let dynamicValue = 0;
+            let showWarning = false;
+
+            if (mode === 'brut') {
+                venitBrut = mainAmount;
+                impOp = venitBrut * 0.04;
+                brutDivDisponibil = venitBrut - impOp - cheltuieli;
+                
+                if (brutDivDisponibil < 0) {
+                    brutDivDisponibil = 0;
+                    showWarning = true;
+                    document.getElementById('warningMsg').innerText = "Venitul brut nu acoperă taxele și cheltuielile!";
+                }
+
+                if (secAmount > 0) {
+                    netDivExtras = secAmount;
+                    let brutDivNecesat = netDivExtras / 0.94;
+                    
+                    if (brutDivNecesat > brutDivDisponibil) {
+                        showWarning = true;
+                        document.getElementById('warningMsg').innerText = "Suma dorită depășește disponibilul firmei!";
+                        netDivExtras = brutDivDisponibil * 0.94;
+                        brutDivNecesat = brutDivDisponibil;
+                    }
+                    
+                    impDiv = brutDivNecesat * 0.06;
+                    dynamicValue = brutDivDisponibil - brutDivNecesat;
+                } else {
+                    impDiv = brutDivDisponibil * 0.06;
+                    netDivExtras = brutDivDisponibil - impDiv;
+                    dynamicValue = 0;
+                }
+            } else {
+                netDivExtras = mainAmount;
+                let bufferBanca = secAmount;
+                let brutDivNecesat = netDivExtras / 0.94;
+                impDiv = brutDivNecesat * 0.06;
+                venitBrut = (brutDivNecesat + bufferBanca + cheltuieli) / 0.96;
+                impOp = venitBrut * 0.04;
+                brutDivDisponibil = brutDivNecesat + bufferBanca;
+                dynamicValue = venitBrut; // În modul NET, arătăm cât trebuie să fie factura (Brut)
+            }
+
+            let totalTaxeDePlatit = impOp + impDiv;
+
+            document.getElementById('resVenitBrut').innerText = formatMoney(venitBrut);
+            document.getElementById('resImpOp').innerText = "- " + formatMoney(impOp);
+            document.getElementById('resCheltuieli').innerText = "- " + formatMoney(cheltuieli);
+            document.getElementById('resBrutDiv').innerText = formatMoney(brutDivDisponibil);
+            document.getElementById('resImpDiv').innerText = "- " + formatMoney(impDiv);
+            document.getElementById('resNetDiv').innerText = formatMoney(netDivExtras);
+            document.getElementById('resDynamicValue').innerText = formatMoney(dynamicValue);
+            document.getElementById('resTotalTaxe').innerText = formatMoney(totalTaxeDePlatit);
+            
+            document.getElementById('hintTax6').innerText = `Din brut div: ${formatMoney(netDivExtras / 0.94)}`;
+            
+            const warningBox = document.getElementById('warningBox');
+            if(showWarning) warningBox.classList.remove('hidden');
+            else warningBox.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', updateUI);
+    </script>
+</body>
+</html>
