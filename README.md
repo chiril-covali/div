@@ -14,7 +14,7 @@ O aplicație web modernă, simplă și eficientă pentru antreprenorii din Repub
 - **Design Modern & Responsiv:** Optimizat special pentru mobil (iOS/Android) și desktop.
 - **Favicon SVG:** Iconiță profesională integrată direct în cod.
 
-## 📊 Logica de Calcul (RM)
+## 📊 Logica de Calcul (🇲🇩)
 
 Calculatorul respectă regimul de taxare pentru SRL-uri neplătitoare de TVA (Regim Simplificat):
 1. **Impozit pe Venit:** 4% din totalul facturat (Venit Brut).
